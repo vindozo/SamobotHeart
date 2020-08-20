@@ -24,7 +24,7 @@ int button1 = 0;
 int button2 = 0;
 
 
-void doCommand(char command, int param) {
+int doCommand(char command, int param) {
   int ret = param;
   switch (command) {
       case 'L': // led
@@ -71,26 +71,46 @@ void doCommand(char command, int param) {
         }
       break;
       case 'B':
-        ret = sensor1 * 1000 + sensor2 * 100 + button1 * 10 + button2;
+        ret = 10000 + sensor1 * 1000 + sensor2 * 100 + button1 * 10 + button2;
         sensor1 = 0;
         sensor2 = 0;
         button1 = 0;
         button2 = 0;
       break;
   }
-  Serial.print(command);
-  Serial.println(String(ret));
+  return ret;
 }
+
 void usbRead() {
   if (Serial.available() > 0) {
     char i = (char)Serial.read();
+    int ret = 0;
     if (i == '\n') {
-        doCommand(serialCommand, serialNumeric);
+        ret = doCommand(serialCommand, serialNumeric);
+        Serial.print(serialCommand);
+        Serial.println(String(ret));
         serialCommand = ' ';
         serialNumeric = 0;
     } else {
         serialCommand = i;
         serialNumeric = Serial.parseInt();
+    }
+  }
+}
+
+void bluetoothRead() {
+  if (Serial1.available() > 0) {
+    char i = (char)Serial1.read();
+    int ret = 0;
+    if (i == '\n') {
+        ret = doCommand(serialCommand, serialNumeric);
+        Serial1.print(serialCommand);
+        Serial1.println(String(ret));
+        serialCommand = ' ';
+        serialNumeric = 0;
+    } else {
+        serialCommand = i;
+        serialNumeric = Serial1.parseInt();
     }
   }
 }
@@ -112,6 +132,7 @@ void sensorButton() {
 
 void setup() {
   Serial.begin(9600);
+  Serial1.begin(9600);
   servo1.attach(SERVO1);
   servo2.attach(SERVO2);
   pinMode(MOTOR1FORWARD, OUTPUT);
@@ -129,5 +150,6 @@ void setup() {
 
 void loop() {
   usbRead();
+  bluetoothRead();
   sensorButton();
 }
