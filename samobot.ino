@@ -10,6 +10,7 @@
 #define MOTOR1BACK 11
 #define MOTOR2FORWARD 10 // no PWM with Servo
 #define MOTOR2BACK 9     // no PWM with Servo
+#define VOLTMETERPORT A0
 
 #include <Servo.h>
 
@@ -23,6 +24,11 @@ int sensor2 = 0;
 int button1 = 0;
 int button2 = 0;
 
+// voltmeter
+float vout = 0.0;
+float vin = 0.0;
+float R1 = 49000.0;
+float R2 = 6844.0;  
 
 int doCommand(char command, int param) {
   int ret = param;
@@ -77,6 +83,9 @@ int doCommand(char command, int param) {
         button1 = 0;
         button2 = 0;
       break;
+      case 'V':
+        ret = vin*100;
+      break;
   }
   return ret;
 }
@@ -130,6 +139,14 @@ void sensorButton() {
   }  
 }
 
+void voltmeterRead(){
+   vout = (analogRead(VOLTMETERPORT) * 5.0) / 1024.0;
+   vin = vout / (R2/(R1+R2)); 
+   if (vin<0.09) {
+     vin = 0.0;
+   }
+}
+
 void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
@@ -139,7 +156,7 @@ void setup() {
   pinMode(MOTOR1BACK, OUTPUT);
   pinMode(MOTOR2FORWARD, OUTPUT);
   pinMode(MOTOR2BACK, OUTPUT);
-  
+  pinMode(VOLTMETERPORT, INPUT);
   digitalWrite(LED, HIGH);
   pinMode(LED, OUTPUT);
   pinMode(SENSOR1, INPUT);
@@ -152,4 +169,5 @@ void loop() {
   usbRead();
   bluetoothRead();
   sensorButton();
+  voltmeterRead();
 }
