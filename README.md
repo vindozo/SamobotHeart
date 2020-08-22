@@ -6,4 +6,4 @@
 
 Сердце робота - силовой модуль управляемый Arduino Leonardo, собраный на макетной плате размерами 90x70 мм.
 
-![схема](https://github.com/vindozo/SamobotHeart/blob/master/schema.png)
+![схема](https://github.com/vindozo/SamobotHeart/blob/master/schema2_1.png)
